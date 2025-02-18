@@ -29,6 +29,7 @@
     <module>product</module>
     <module>frontProductComposite</module>
     <module>review</module>
+    <module>discovery</module>
   </modules>
 
 

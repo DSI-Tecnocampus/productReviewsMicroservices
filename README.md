@@ -171,6 +171,45 @@ Review Service console to see the logs. You will notice that it will not receive
 
 You can also see the circuit breaker status by calling the actuator endpoint: `http://localhost:8080/actuator/health/circuitBreakers
 
+---
+
+## Version 3: Service Discovery and Load Balancing
+This version introduces **service discovery** and **load balancing** using **Spring Cloud Netflix Eureka**. Service discovery 
+allows the `front-product-service` to locate the `product-service` and `review-service` dynamically, without hardcoding their URLs. 
+Load balancing uses a round-robin ensuring that requests are distributed evenly across multiple instances of the same service.
+
+You can visit the Eureka dashboard at `http://localhost:8761/` to see the registered services.
+To experiment with the load balancing, you can create two instances of the `review-service` and see how each service gets half of the requests.
+The docker compose file is already configured to create two instances of the review service.
+
+### Discovery Service
+We are using the Eureka server as the discovery service. We only had to add the `@EnableEurekaServer` annotation to the main class of the Eureka server,
+and add the following dependency to the pom.xml file:
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+        </dependency>
+```
+We also added some configurations to the application.yml file to configure the server. Basically to shorten the time to register the services.
+
+### Product and Review Services
+We added the following dependency in the pom.xml file to enable the services to register in the Eureka server:
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+```
+In this way the services will register in the Eureka server when they start. We also added the configuration to the application.yml for the 
+services to know where the Eureka server is.
+
+### FrontProductComposite Service
+In addition to the dependency and configuration in the pom.xml and application.yml files, we also added the @LoadBalanced annotation to the
+configuration of the `RestClient. This annotation tells Spring to use the Ribbon load balancer to distribute the requests among the instances of the services.
+
+This service goes to the Eureka server to get the URL of the services. It requests form the discovery service the actual URL of the services giving 
+their names. See the configuration in the application.yml file.
 
 ## References and Further Reading
 This example is inspired by the book **"Microservices with Spring Boot 3 and Spring Cloud, Third Edition. Magnus Larson. Ed. Packt"** and its accompanying GitHub repository:

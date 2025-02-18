@@ -16,6 +16,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    deploy:
+      replicas: 2
 
   front-product-service:
     build: frontProductComposite
@@ -40,3 +42,9 @@ services:
       interval: 5s
       timeout: 2s
       retries: 60
+
+  eureka:
+    build: discovery
+    mem_limit: 512m
+    ports:
+      - "8761:8761"
