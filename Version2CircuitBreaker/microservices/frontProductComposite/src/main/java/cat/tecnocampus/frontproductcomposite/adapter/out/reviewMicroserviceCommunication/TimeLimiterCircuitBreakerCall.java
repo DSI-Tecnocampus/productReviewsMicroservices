@@ -3,7 +3,7 @@ package cat.tecnocampus.frontproductcomposite.adapter.out.reviewMicroserviceComm
 import cat.tecnocampus.frontproductcomposite.application.services.Review;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -16,10 +16,11 @@ import java.util.concurrent.CompletableFuture;
 public class TimeLimiterCircuitBreakerCall {
     private final RestClient restClient;
 
-    public TimeLimiterCircuitBreakerCall(@Qualifier("reviewRestClient") RestClient restClient) {
-        this.restClient = restClient;
+    public TimeLimiterCircuitBreakerCall(RestClient.Builder restClientBuilder,
+                                   @Value("${app.review-service.host}") String reviewServiceHost,
+                                   @Value("${app.review-service.port}") String reviewServicePort) {
+        this.restClient = restClientBuilder.baseUrl("http://" + reviewServiceHost + ":" + reviewServicePort +"/reviews").build();
     }
-
 
     @TimeLimiter(name = "review")
     @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValueCircuitBreaker")

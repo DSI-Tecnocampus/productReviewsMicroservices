@@ -2,7 +2,7 @@ package cat.tecnocampus.frontproductcomposite.adapter.out.productMicroserviceCom
 
 import cat.tecnocampus.frontproductcomposite.application.ports.out.productMicroserviceCommunication.ProductMicroserviceCommunication;
 import cat.tecnocampus.frontproductcomposite.application.services.ProductComposite;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -16,8 +16,9 @@ import java.util.Optional;
 public class ProductCommunicationRest implements ProductMicroserviceCommunication {
     private final RestClient restClient;
 
-    public ProductCommunicationRest(@Qualifier("productRestClient") RestClient restClient) {
-        this.restClient = restClient;
+    public ProductCommunicationRest(RestClient.Builder restClientBuilder, @Value("${app.product-service.host}") String productServiceHost,
+                                    @Value("${app.product-service.port}") String productServicePort) {
+         this.restClient = restClientBuilder.baseUrl("http://" + productServiceHost + ":" + productServicePort + "/products").build();
     }
 
     @Override

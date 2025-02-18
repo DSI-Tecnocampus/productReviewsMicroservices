@@ -5,6 +5,7 @@ import cat.tecnocampus.frontproductcomposite.application.ports.out.reviewMicrose
 import cat.tecnocampus.frontproductcomposite.application.services.ProductComposite;
 import cat.tecnocampus.frontproductcomposite.application.services.Review;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -18,8 +19,10 @@ import java.util.Optional;
 public class ReviewCommunicationRest implements ReviewMicroserviceCommunication {
     private final RestClient restClient;
 
-    public ReviewCommunicationRest(@Qualifier("reviewRestClient") RestClient restClient) {
-        this.restClient = restClient;
+    public ReviewCommunicationRest(RestClient.Builder restClientBuilder,
+                                   @Value("${app.review-service.host}") String reviewServiceHost,
+                                   @Value("${app.review-service.port}") String reviewServicePort) {
+        this.restClient = restClientBuilder.baseUrl("http://" + reviewServiceHost + ":" + reviewServicePort +"/reviews").build();
     }
 
     @Override
