@@ -270,6 +270,30 @@ filters:
 
 In summary, this route configuration ensures that any request with a host header of `i.feel.lucky:8080` and a path starting with `/headerrouting/` will be forwarded to `http://httpstat.us` with the path set to `/200`.
 
+---
+
+## Version 5: Configuration Service
+This version introduces a **Configuration Service** using **Spring Cloud Config**. The Configuration Service centralizes the configuration of all services,
+allowing to manage properties externally and dynamically update them without restarting the services. The Configuration Service is a separate service that
+provides configuration properties to other services. It stores the configuration files of the different services in a local directory. It could be
+configured to store the configuration in a Git repository or a database. We need to run the Configuration Service with the `native` profile to use the local
+directory.
+
+The services have a minimal configuration in their application.yml files telling to get their complete configurations from the Configuration Service and where it 
+is situated. They need to have two additional dependencies in their pom.xml files to enable the services to get the configuration from the Configuration Service:
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+```
+The retry dependency is needed to enable the services to retry to get the configuration from the Configuration Service if it is not available when they start.
+
+
 ## References and Further Reading
 This example is inspired by the book **"Microservices with Spring Boot 3 and Spring Cloud, Third Edition. Magnus Larson. Ed. Packt"** and its accompanying GitHub repository:
 - [GitHub Repository](https://github.com/PacktPublishing/Microservices-with-Spring-Boot-and-Spring-Cloud-Third-Edition/tree/SB3.2)
