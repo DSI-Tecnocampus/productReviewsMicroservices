@@ -206,10 +206,69 @@ services to know where the Eureka server is.
 
 ### FrontProductComposite Service
 In addition to the dependency and configuration in the pom.xml and application.yml files, we also added the @LoadBalanced annotation to the
-configuration of the `RestClient. This annotation tells Spring to use the Ribbon load balancer to distribute the requests among the instances of the services.
+configuration of the `RestClient`. This annotation tells Spring to use the Ribbon load balancer to distribute the requests among the instances of the services.
 
 This service goes to the Eureka server to get the URL of the services. It requests form the discovery service the actual URL of the services giving 
 their names. See the configuration in the application.yml file.
+
+---
+
+## Version 4: Gateway Service
+This version introduces an **API Gateway** using **Spring Cloud Gateway**. The API Gateway acts as a single entry point for clients, allowing to hide the
+complexity of the microservices architecture and providing additional features such as authentication, rate limiting, and request routing. In this example, 
+we only use the API Gateway to route requests to the front-product-service and added some extra routes to show how it works.
+
+Note that, in the docker version, the API Gateway is the only service that is exposed to the host machine. The other services are only accessible within the 
+Docker network.
+
+This is the configuration of the API Gateway in the application.yml file that routes the requests to the front-product-service:
+```yaml
+  - id: frontProductComposite
+    uri: lb://frontProductComposite/products
+    predicates:
+      - Path=/products/**
+```
+This configuration tells the API Gateway to route any request that starts with `/products/` to the front-product-service. The `lb://` prefix indicates that
+the request should be load balanced among the instances of the service.
+
+Let ChatGPT explain the following route:
+
+```yaml
+  - id: host_route_200
+    uri: http://httpstat.us
+    predicates:
+      - Host=i.feel.lucky:8080
+      - Path=/headerrouting/**
+    filters:
+      - SetPath=/200
+```
+
+The route is identified by the `id` `host_route_200`. The `uri` field specifies the destination URL for this route, which is `http://httpstat.us`. 
+This means that any requests matching the predicates defined for this route will be forwarded to `http://httpstat.us`.
+
+```yaml
+- id: host_route_200
+  uri: http://httpstat.us
+```
+
+The `predicates` section defines the conditions that incoming requests must meet to be routed through this route. In this case, there are two predicates:
+- The `Host` predicate specifies that the request must have a host header of `i.feel.lucky:8080`.
+- The `Path` predicate specifies that the request path must start with `/headerrouting/`.
+
+```yaml
+predicates:
+  - Host=i.feel.lucky:8080
+  - Path=/headerrouting/**
+```
+
+The `filters` section defines the modifications that should be applied to the request before it is forwarded. Here, the `SetPath` filter is used to change the request path to `/200`.
+
+```yaml
+filters:
+  - SetPath=/200
+```
+
+In summary, this route configuration ensures that any request with a host header of `i.feel.lucky:8080` and a path starting with `/headerrouting/` will be forwarded to `http://httpstat.us` with the path set to `/200`.
 
 ## References and Further Reading
 This example is inspired by the book **"Microservices with Spring Boot 3 and Spring Cloud, Third Edition. Magnus Larson. Ed. Packt"** and its accompanying GitHub repository:
