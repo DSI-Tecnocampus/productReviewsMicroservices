@@ -1,6 +1,8 @@
 server:
   port: 8761
 
+cat.tecnocampus: INFO
+
 eureka:
   instance:
     hostname: localhost

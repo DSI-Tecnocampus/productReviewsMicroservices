@@ -3,6 +3,8 @@ server.port: 8000
 app.eureka-server: localhost
 app.config-server: localhost
 
+cat.tecnocampus: INFO
+
 spring.cloud.gateway.routes:
 
   - id: frontProductComposite

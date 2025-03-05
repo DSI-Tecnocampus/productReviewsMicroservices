@@ -1,0 +1,7 @@
+# WARNING: Exposing all management endpoints over http should only be used during development, must be locked down in production!
+management.endpoint.health.show-details: "ALWAYS"
+management.endpoints.web.exposure.include: "*"
+
+management.zipkin.tracing.endpoint: http://localhost:9411/api/v2/spans
+management.tracing.sampling.probability: 1.0
+logging.pattern.level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

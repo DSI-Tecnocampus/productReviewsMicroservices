@@ -1,3 +1,5 @@
+cat.tecnocampus: INFO
+
 spring:
   sql.init.mode: always
   datasource:

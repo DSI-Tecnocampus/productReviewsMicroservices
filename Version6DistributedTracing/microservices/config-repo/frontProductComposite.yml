@@ -3,6 +3,9 @@ spring:
     name: frontProductComposite
 server.port: 8010
 
+cat.tecnocampus: INFO
+org.springframework.web.server.adapter.HttpWebHandlerAdapter: INFO
+
 resilience4j.timelimiter:
   instances:
     review:
