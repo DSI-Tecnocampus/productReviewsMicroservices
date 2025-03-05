@@ -2,6 +2,9 @@
 GET http://localhost:8000/products
 
 ###
+GET http://localhost:8000/eureka/web
+
+###
 GET http://localhost:8000/products/1
 
 ### get reviews with a delay of 7 seconds. Time limiter is set to 2 seconds
@@ -15,6 +18,9 @@ Host: i.feel.lucky:8080
 ###
 GET http://localhost:8000/headerrouting
 Host: im.a.teapot:8080
+
+###
+GET http://localhost:8000/headerrouting
 
 ###
 GET http://localhost:8000/headerrouting

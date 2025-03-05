@@ -19,7 +19,8 @@ public class ProductCommunicationRest implements ProductMicroserviceCommunicatio
     private final String productServiceHost;
     private final String productServicePort;
 
-    public ProductCommunicationRest(RestClient.Builder restClientBuilder, @Value("${app.product-service.host}") String productServiceHost,
+    public ProductCommunicationRest(RestClient.Builder restClientBuilder,
+                                    @Value("${app.product-service.host}") String productServiceHost,
                                     @Value("${app.product-service.port}") String productServicePort) {
         this.productServiceHost = productServiceHost;
         this.productServicePort = productServicePort;
