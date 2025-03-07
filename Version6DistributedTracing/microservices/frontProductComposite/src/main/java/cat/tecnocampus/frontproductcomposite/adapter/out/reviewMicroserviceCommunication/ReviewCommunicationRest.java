@@ -18,7 +18,7 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
     private final RestClient restClient;
     private final TimeLimiterCircuitBreakerCall timeLimiterCircuitBreakerCall;
 
-    public ReviewCommunicationRest(RestClient.Builder restClientBuilder, TimeLimiterCircuitBreakerCall timeLimiterCircuitBreakerCall) {
+    public ReviewCommunicationRest(@Qualifier("myRestClientBuilder") RestClient.Builder restClientBuilder, TimeLimiterCircuitBreakerCall timeLimiterCircuitBreakerCall) {
         this.restClient = restClientBuilder.baseUrl("http://review/reviews").build();
         this.timeLimiterCircuitBreakerCall = timeLimiterCircuitBreakerCall;
     }

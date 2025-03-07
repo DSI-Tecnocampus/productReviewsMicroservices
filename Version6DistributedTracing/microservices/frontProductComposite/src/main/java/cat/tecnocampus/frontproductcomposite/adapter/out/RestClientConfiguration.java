@@ -1,5 +1,6 @@
 package cat.tecnocampus.frontproductcomposite.adapter.out;
 
+import io.micrometer.observation.ObservationRegistry;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,11 +8,11 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class RestClientConfiguration {
-    private final String productServiceUrl = "http://product";
 
-    @Bean("productRestClient")
+    @Bean("myRestClientBuilder")
     @LoadBalanced
-    public RestClient.Builder restClient() {
-        return RestClient.builder();
+    public RestClient.Builder restClient(ObservationRegistry observationRegistry) {
+        return RestClient.builder()
+                .observationRegistry(observationRegistry);
     }
 }

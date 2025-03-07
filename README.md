@@ -293,6 +293,72 @@ is situated. They need to have two additional dependencies in their pom.xml file
 ```
 The retry dependency is needed to enable the services to retry to get the configuration from the Configuration Service if it is not available when they start.
 
+## Version 6: Centralized Logging
+We are going to use OpenTelemetry to capture the logs of the services and send them to a centralized logging system. We are going to use Zipkin as the
+centralized logging system. Note that the compose.yaml docker file has been modified to include the Zipkin server. 
+
+The services' pom.xml files have been modified to include the following dependencies:
+```xml
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-zipkin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+```
+
+The OpenTelemtry library generates logs when a request is made to the services or when a request is received. These logs
+carry a traceId that is used to group the logs of a request. To bind request in the different services, the traceId is sent in the headers of the request.
+Then, the logs are sent to the Zipkin server. 
+
+The code would work as it is, but the FrontProductComposite server wraps its RestClient with a LoadBalancer and a CircuitBreaker. So we needed to 
+add an OservationRegistry to the RestClient.Builder to be able to get the traceId from the headers of the request and send it in the headers of the
+request to the other services. Also, because the CircuitBreaker is run in a different thread (CompletableFuture), we needed to bind the 
+context of the main thread to the new thread. 
+
+You can compare the old and current code of the TimeLimiterCircuitBreakerCall class to see the changes:
+Key changes:
+1. An Observation is created before the CompletableFuture.
+2. The Observation.Scope is opened within the CompletableFuture's supplyAsync method to ensure the tracing context is propagated.
+3. The Observation is properly started, stopped, and errors are recorded.
+
+The goal is to propagate the tracing context correctly when using `CompletableFuture` with Resilience4j's `TimeLimiter` and `CircuitBreaker`. The problem arises because `CompletableFuture.supplyAsync()` executes its task in a separate thread, potentially losing the tracing context of the original thread.
+
+Here's a detailed explanation of the solution (Gemini generated the code and the explanation):
+
+1.  **Observation Creation**:
+    *   An `Observation` named `"review.request"` is created using `Observation.createNotStarted(name, observationRegistry)`. This observation represents the entire operation of fetching reviews.  It's not started immediately because we want to start it within the context of the `CompletableFuture`.
+
+2.  **`CompletableFuture.supplyAsync()`**:
+    *   This method is used to execute the request asynchronously. The lambda expression provided to `supplyAsync` is where the tracing context needs to be handled.
+
+3.  **Tracing Context Propagation with `Observation.Scope`**:
+    *   `try (Observation.Scope scope = observation.start().openScope())`: This is the most crucial part.
+        *   `observation.start()`: Starts the observation, marking the beginning of the traced operation.
+        *   `observation.openScope()`: Opens a scope that binds the current observation to the current thread's context.  This ensures that any tracing information available at this point is propagated to the code within the `try` block.  The `try-with-resources` block ensures that the scope is closed (and the observation context is cleared) when the block finishes, regardless of whether it completes successfully or throws an exception.
+        *   The `executeRequest()` method (explained below) is called within this scope. Any calls made by `executeRequest()` will now be part of the same trace.
+
+4.  **`executeRequest()` Method**:
+    *   This method performs the actual REST call to the `review` microservice. Because it's called within the `Observation.Scope`, it automatically inherits the tracing context.
+
+5.  **Error Handling**:
+    *   `catch (Exception e)`: If any exception occurs during the execution of `executeRequest()`, the `observation.error(e)` method is called to record the error in the observation.  This helps in diagnosing issues by providing error information in the trace.  The exception is then re-thrown to be handled by the `CompletableFuture`.
+
+6.  **Observation Stopping**:
+    *   `finally { observation.stop(); }`: The `observation.stop()` method is called in the `finally` block to ensure that the observation is always stopped, regardless of whether the operation was successful or an exception was thrown.  This marks the end of the traced operation.
+
+7.  **Fallback Method**:
+    *   `getReviewsFallbackValueCircuitBreaker()`: This method provides a fallback value in case the circuit breaker is open. It returns a `CompletableFuture` that is already completed with a default list of reviews.
+
+In summary, this approach ensures that the tracing context is correctly propagated across the asynchronous boundary created by `CompletableFuture`, allowing you to see a single, consistent trace even when using `TimeLimiter` and `CircuitBreaker`. The `Observation` API from Micrometer Tracing is used to manually manage the tracing scope, ensuring that the REST call within the `CompletableFuture` is executed with the correct tracing information.
+
+
 
 ## References and Further Reading
 This example is inspired by the book **"Microservices with Spring Boot 3 and Spring Cloud, Third Edition. Magnus Larson. Ed. Packt"** and its accompanying GitHub repository:

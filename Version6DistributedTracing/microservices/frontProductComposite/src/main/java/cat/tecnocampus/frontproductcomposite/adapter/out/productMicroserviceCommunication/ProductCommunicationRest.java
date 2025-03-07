@@ -16,7 +16,7 @@ import java.util.Optional;
 public class ProductCommunicationRest implements ProductMicroserviceCommunication {
     private final RestClient restClient;
 
-    public ProductCommunicationRest(RestClient.Builder restClientBuilder) {
+    public ProductCommunicationRest(@Qualifier("myRestClientBuilder") RestClient.Builder restClientBuilder) {
         this.restClient = restClientBuilder.baseUrl("http://product/products").build();
     }
 
