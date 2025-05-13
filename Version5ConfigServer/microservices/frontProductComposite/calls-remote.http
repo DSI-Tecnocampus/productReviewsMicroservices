@@ -1,0 +1,70 @@
+###
+GET http://10.0.202.2:8080/products
+
+###
+GET http://10.0.202.2:8080/products/1
+
+### get reviews with a delay of 7 seconds. Time limiter is set to 2 seconds
+GET http://10.0.202.2:8080/products/1?delay=7000
+
+
+### get reviews with % of failure
+GET http://10.0.202.2:8080/products/1?faultPercent=90
+
+
+###
+GET http://10.0.202.2:8080/actuator/health/circuitBreakers
+
+
+###
+POST http://10.0.202.2:8080/products
+content-type: application/json
+
+{
+    "name": "Product 1",
+    "description": "Product 1 description",
+    "reviews": [
+        {
+            "author": "Author 1",
+            "content": "Content 1",
+            "rating": 5
+        },
+        {
+            "author": "Author 2",
+            "content": "Content 2",
+            "rating": 2
+        }
+    ]
+}
+
+###
+POST http://10.0.202.2:8080/products/1/reviews
+content-type: application/json
+
+{
+    "author": "Author 3",
+    "content": "Content 3",
+    "rating": 4
+}
+
+###
+POST http://10.0.202.2:8080/products/100/reviews
+content-type: application/json
+
+{
+    "author": "Author 3",
+    "content": "Content 3",
+    "rating": 4
+}
+
+###
+GET http://10.0.202.2:8080/actuator/health
+
+###
+GET http://dev-usr:dev-pwd@localhost:8888/config/product
+
+###
+GET http://10.0.202.2:8080/config
+
+
+

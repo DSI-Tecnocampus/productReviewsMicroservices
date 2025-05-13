@@ -1,11 +1,45 @@
 ###
-GET http://localhost:8080/products
+GET http://10.0.202.2:8080/products
 
 ###
-GET http://localhost:8080/products/2
+GET http://10.0.202.2:8080/eureka/web
 
 ###
-POST http://localhost:8080/products
+GET http://10.0.202.2:8080/products/1
+
+### get reviews with a delay of 7 seconds. Time limiter is set to 2 seconds
+GET http://10.0.202.2:8080/products/1?delay=7000
+
+
+###
+GET http://10.0.202.2:8080/headerrouting
+Host: i.feel.lucky:8080
+
+###
+GET http://10.0.202.2:8080/headerrouting
+Host: im.a.teapot:8080
+
+###
+GET http://10.0.202.2:8080/headerrouting
+
+###
+GET http://10.0.202.2:8080/headerrouting
+
+
+### get reviews with % of failure
+GET http://10.0.202.2:8080/products/1?faultPercent=90
+
+
+###
+GET http://10.0.202.2:8080/actuator/gateway/routes
+
+
+###
+GET http://10.0.202.2:8080/actuator/health/circuitBreakers
+
+
+###
+POST http://10.0.202.2:8080/products
 content-type: application/json
 
 {
@@ -26,7 +60,7 @@ content-type: application/json
 }
 
 ###
-POST http://localhost:8080/products/1/reviews
+POST http://10.0.202.2:8080/products/1/reviews
 content-type: application/json
 
 {
@@ -36,7 +70,7 @@ content-type: application/json
 }
 
 ###
-POST http://localhost:8080/products/100/reviews
+POST http://10.0.202.2:8080/products/100/reviews
 content-type: application/json
 
 {
@@ -45,6 +79,8 @@ content-type: application/json
     "rating": 4
 }
 
+###
+GET http://10.0.202.2:8080/actuator/health
 
 ### To use with dockers
 
