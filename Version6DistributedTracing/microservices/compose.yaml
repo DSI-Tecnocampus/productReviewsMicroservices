@@ -51,15 +51,19 @@ services:
 
   eureka:
     build: discovery
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
     mem_limit: 512m
     ports:
       - "8761:8761"
 
   config-server:
     build: config-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,native  # native profile is mandatory otherwise it tries default git
     mem_limit: 512m
     volumes:
-      - $PWD/config-repo:/config-repo
+      - /home/jroure/config-repo:/config-repo
 
   zipkin:
     image: openzipkin/zipkin:2.24.0
