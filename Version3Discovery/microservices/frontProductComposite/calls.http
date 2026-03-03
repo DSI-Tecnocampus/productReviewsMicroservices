@@ -66,7 +66,19 @@ GET http://localhost:8000/actuator/health
 GET http://localhost:8080/products
 
 ###
-GET http://localhost:8080/products/5
+GET http://localhost:8080/products/1
+
+### get reviews with a delay of 7 seconds. Time limiter is set to 2 seconds
+GET http://localhost:8080/products/1?delay=7000
+
+
+### get reviews with % of failure
+GET http://localhost:8080/products/1?faultPercent=90
+
+
+###
+GET http://localhost:8080/actuator/health/circuitBreakers
+
 
 ###
 POST http://localhost:8080/products
