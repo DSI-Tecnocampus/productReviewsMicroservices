@@ -11,6 +11,7 @@ import org.springframework.web.client.RestClient;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -35,7 +36,7 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
             CompletableFuture<List<Review>> future = timeLimiterCircuitBreakerCall.getReviewsFromProduct(productId, delay, faultPercent);
             List<Review> reviews = future.get(); // Blocking call to get the result
             return reviews;
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException |CancellationException e) {
             // Handle exceptions and return the fallback value
             System.out.println("Exception " +
                     e.getMessage() +
@@ -43,7 +44,7 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
                     Thread.currentThread().getName() +
                     " at " +
                     LocalDateTime.now().format(formatter));
-            return getReviewsFallbackValueTimeLimiter(productId, delay, faultPercent, e);
+            return getReviewsFallbackException(productId, delay, faultPercent, e);
         }
     }
 
@@ -57,7 +58,7 @@ public class ReviewCommunicationRest implements ReviewMicroserviceCommunication 
                 .body(Review.class); // Deserialize the response to ProductCompositereturn null;
     }
 
-    private List<Review> getReviewsFallbackValueTimeLimiter(long productId, int delay, int faultPercent, Exception e) {
-        return List.of(new Review(0, "Time Limiter fallback", "TL fallback", 5));
+    private List<Review> getReviewsFallbackException(long productId, int delay, int faultPercent, Exception e) {
+        return List.of(new Review(0, "Future exception fallback", "TL fallback", 5));
     }
 }

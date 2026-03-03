@@ -4,6 +4,9 @@ GET http://localhost:8000/products
 ###
 GET http://localhost:8000/products/1
 
+### non existing product
+GET http://localhost:8000/products/111
+
 ### get reviews with a delay of 7 seconds. Time limiter is set to 2 seconds
 GET http://localhost:8000/products/1?delay=7000
 

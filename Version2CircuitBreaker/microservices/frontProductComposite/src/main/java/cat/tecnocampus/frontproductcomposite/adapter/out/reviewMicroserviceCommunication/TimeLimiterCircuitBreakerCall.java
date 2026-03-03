@@ -23,7 +23,7 @@ public class TimeLimiterCircuitBreakerCall {
     }
 
     @TimeLimiter(name = "review")
-    @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValueCircuitBreaker")
+    @CircuitBreaker(name = "review", fallbackMethod = "getReviewsFallbackValueCircuitBreakerOrTimeLimiter")
     public CompletableFuture<List<Review>> getReviewsFromProduct(long productId, int delay, int faultPercent) {
         return CompletableFuture.supplyAsync(
                 () -> restClient.get()
@@ -35,9 +35,7 @@ public class TimeLimiterCircuitBreakerCall {
         );
     }
 
-    private CompletableFuture<List<Review>> getReviewsFallbackValueCircuitBreaker(long productId, int delay, int faultPercent, Throwable e) {
-        return CompletableFuture.completedFuture(List.of(new Review(0, "Circuit breaker fallback", "CB fallback", 5)));
+    private CompletableFuture<List<Review>> getReviewsFallbackValueCircuitBreakerOrTimeLimiter(long productId, int delay, int faultPercent, Throwable e) {
+        return CompletableFuture.completedFuture(List.of(new Review(0, "Circuit breaker or TimeOut fallback", "CB or TL fallback", 5)));
     }
-
-
 }
