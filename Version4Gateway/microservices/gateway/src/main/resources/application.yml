@@ -4,47 +4,50 @@ server.port: 8000
 
 app.eureka-server: localhost
 
-spring.cloud.gateway.routes:
+spring.cloud.gateway:
+  x-forwarded:
+    enabled: false
+  routes:
+    - id: frontProductComposite
+      uri: lb://frontProductComposite/products
+      predicates:
+        - Path=/products/**
 
-  - id: frontProductComposite
-    uri: lb://frontProductComposite/products
-    predicates:
-      - Path=/products/**
+    - id: eureka-web-start
+      uri: http://${app.eureka-server}:8761
+      predicates:
+        - Path=/eureka/web
+      filters:
+        - SetPath=/
 
-  - id: eureka-web-start
-    uri: http://${app.eureka-server}:8761
-    predicates:
-      - Path=/eureka/web
-    filters:
-      - SetPath=/
+    - id: eureka-web-other
+      uri: http://${app.eureka-server}:8761
+      predicates:
+        - Path=/eureka/**
 
-  - id: eureka-web-other
-    uri: http://${app.eureka-server}:8761
-    predicates:
-      - Path=/eureka/**
+    - id: host_route_200
+      uri: http://httpbin.org
+      predicates:
+        - Host=im.a.teapot:8080
+        - Path=/headerrouting/**
+      filters:
+        - SetPath=/status/200
 
-  - id: host_route_200
-    uri: http://httpstat.us
-    predicates:
-      - Host=i.feel.lucky:8080
-      - Path=/headerrouting/**
-    filters:
-      - SetPath=/200
+    - id: host_route_418
+      uri: http://httpbin.org
+      predicates:
+        - Host=im.a.teapot:8080
+        - Path=/headerrouting/**
+      filters:
+        - SetPath=/status/418
 
-  - id: host_route_418
-    uri: http://httpstat.us
-    predicates:
-      - Host=im.a.teapot:8080
-      - Path=/headerrouting/**
-    filters:
-      - SetPath=/418
-
-  - id: host_route_501
-    uri: http://httpstat.us
-    predicates:
-      - Path=/headerrouting/**
-    filters:
-      - SetPath=/501
+    - id: host_route_501
+      uri: http://httpbin.org
+      predicates:
+        - Host=im.a.teapot:8080
+        - Path=/headerrouting/**
+      filters:
+        - SetPath=/status/501
 
 management:
   endpoint:
@@ -78,3 +81,5 @@ spring.config.activate.on-profile: docker
 server.port: 8080
 
 eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+
+app.eureka-server: eureka
