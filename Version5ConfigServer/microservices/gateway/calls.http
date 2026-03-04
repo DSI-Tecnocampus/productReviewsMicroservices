@@ -82,7 +82,20 @@ GET http://localhost:8000/actuator/health
 GET http://localhost:8080/products
 
 ###
-GET http://localhost:8080/products/5
+GET http://localhost:8080/products/1
+
+###
+GET http://localhost:8080/headerrouting
+Host: i.feel.lucky:8080
+
+###
+GET http://localhost:8080/headerrouting
+Host: im.a.teapot:8080
+
+###
+GET http://localhost:8080/headerrouting
+
+
 
 ###
 POST http://localhost:8080/products

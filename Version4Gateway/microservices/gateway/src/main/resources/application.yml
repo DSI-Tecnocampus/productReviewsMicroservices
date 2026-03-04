@@ -28,7 +28,7 @@ spring.cloud.gateway:
     - id: host_route_200
       uri: http://httpbin.org
       predicates:
-        - Host=im.a.teapot:8080
+        - Host=i.feel.lucky:8080
         - Path=/headerrouting/**
       filters:
         - SetPath=/status/200
@@ -44,7 +44,6 @@ spring.cloud.gateway:
     - id: host_route_501
       uri: http://httpbin.org
       predicates:
-        - Host=im.a.teapot:8080
         - Path=/headerrouting/**
       filters:
         - SetPath=/status/501
